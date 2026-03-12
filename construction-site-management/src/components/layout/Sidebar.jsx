@@ -17,9 +17,9 @@ import {
   FileSpreadsheet,
   Menu,
   X,
-  DollarSign,
   FileText,
   HardHat,
+  Wallet,
 } from 'lucide-react';
 
 const normalizeRole = (role) => {
@@ -147,9 +147,9 @@ const Sidebar = () => {
       roles: ['Worker'],
     },
     {
-      label: 'Salary',
+      label: '₹ Salary',
       path: '/worker/salary',
-      icon: DollarSign,
+      icon: Wallet,
       roles: ['Worker'],
     },
   ];

@@ -8,7 +8,8 @@ import { useContext, useMemo, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
 import { useAuth } from '../../hooks/useAuth';
 import { Card, Badge } from '../../components/ui';
-import { DollarSign, TrendingDown, Calendar, Clock } from 'lucide-react';
+import { formatCurrencyINR } from '../../utils/formatCurrency';
+import { TrendingDown, Calendar, Clock } from 'lucide-react';
 
 const today = new Date();
 
@@ -117,16 +118,14 @@ export default function WorkerSalary() {
           value={`${salary.totalHours} hrs`}
           color="text-blue-400"
         />
-        <SalaryCard
-          icon={DollarSign}
-          label="Gross Salary"
-          value={`₹${salary.totalSalary.toLocaleString()}`}
-          color="text-amber-500"
-        />
+        <div className="p-4 bg-slate-800/50 rounded-lg">
+          <p className="text-slate-400 text-sm">Gross Salary</p>
+          <p className="text-2xl font-bold text-amber-500 mt-2">{formatCurrencyINR(salary.totalSalary)}</p>
+        </div>
         <SalaryCard
           icon={TrendingDown}
           label="Absence Deduction"
-          value={`-₹${salary.absenceDeduction.toLocaleString()}`}
+          value={`-${formatCurrencyINR(salary.absenceDeduction).substring(1)}`}
           color="text-rose-500"
         />
       </div>
@@ -136,13 +135,12 @@ export default function WorkerSalary() {
         <div className="flex items-center justify-between p-2">
           <div>
             <p className="text-slate-400 text-sm">Net Salary — {months[selectedMonth]} {selectedYear}</p>
-            <p className="text-4xl font-bold text-amber-500 mt-1">₹{salary.netSalary.toLocaleString()}</p>
+            <p className="text-4xl font-bold text-amber-500 mt-1">{formatCurrencyINR(salary.netSalary)}</p>
             <p className="text-slate-400 text-xs mt-1">
               {salary.totalDaysWorked} full days + {salary.halfDays} half days &nbsp;|&nbsp;
               {salary.absentDays} absent day{salary.absentDays !== 1 ? 's' : ''} deducted
             </p>
           </div>
-          <DollarSign size={48} className="text-amber-500/30" />
         </div>
       </Card>
 
@@ -152,7 +150,7 @@ export default function WorkerSalary() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Stat label="Total Days Worked" value={allTime.totalDaysWorked} />
             <Stat label="Total Hours" value={`${allTime.totalHours} hrs`} />
-            <Stat label="Total Earned" value={`₹${allTime.totalSalary.toLocaleString()}`} accent />
+            <Stat label="Total Earned" value={formatCurrencyINR(allTime.totalSalary)} accent />
             <Stat label="Total Absent Days" value={allTime.absentDays} />
           </div>
         </Card>
@@ -191,7 +189,7 @@ export default function WorkerSalary() {
                     </td>
                     <td className="py-3 px-4 text-slate-400 text-sm">{entry.hours_worked}</td>
                     <td className="py-3 px-4 text-slate-50 text-sm font-medium">
-                      ₹{Number(entry.labor_cost || 0).toLocaleString()}
+                      {formatCurrencyINR(Number(entry.labor_cost || 0))}
                     </td>
                   </tr>
                 ))}

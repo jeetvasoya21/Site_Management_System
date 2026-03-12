@@ -7,6 +7,7 @@ import { useContext, useMemo, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
 import { useAuth } from '../../hooks/useAuth';
 import { Card, Badge } from '../../components/ui';
+import { formatCurrencyINR } from '../../utils/formatCurrency';
 import { getLunarHolidaysForMonth, getLunarHolidayType } from '../../utils/lunarHolidays';
 import { CalendarDays, Moon } from 'lucide-react';
 
@@ -155,7 +156,7 @@ export default function WorkerAttendance() {
           { label: 'Absent', value: summary.absent, color: 'text-rose-500' },
           { label: 'Holidays', value: summary.holidays, color: 'text-blue-400' },
           { label: 'Total Hours', value: summary.totalHours, color: 'text-slate-50' },
-          { label: 'Earned', value: `$${summary.totalEarned.toLocaleString()}`, color: 'text-amber-500' },
+          { label: 'Earned', value: formatCurrencyINR(summary.totalEarned), color: 'text-amber-500' },
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-center">
             <p className="text-slate-400 text-xs">{label}</p>
@@ -208,7 +209,7 @@ export default function WorkerAttendance() {
                       {entry.record && !entry.lunarType ? entry.record.hours_worked : '—'}
                     </td>
                     <td className="py-3 px-4 text-slate-50 text-sm">
-                      {entry.record && !entry.lunarType ? `$${Number(entry.record.labor_cost || 0).toLocaleString()}` : '—'}
+                      {entry.record && !entry.lunarType ? formatCurrencyINR(Number(entry.record.labor_cost || 0)) : '—'}
                     </td>
                     <td className="py-3 px-4 text-slate-500 text-xs">
                       {entry.lunarType ? `Lunar holiday: ${entry.lunarType}` : isSunday ? 'Sunday' : ''}

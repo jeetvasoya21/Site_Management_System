@@ -9,6 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import { useAuth } from '../../hooks/useAuth';
 import { Card, Badge, Button, Input, Select, Modal } from '../../components/ui';
+import { formatCurrencyINR } from '../../utils/formatCurrency';
 import {
   ArrowLeft,
   Plus,
@@ -226,8 +227,8 @@ export default function ProjectDetails() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <InfoTile label="Start Date" value={project.start_date} />
             <InfoTile label="End Date" value={project.end_date} />
-            <InfoTile label="Budget" value={`$${Number(project.budget).toLocaleString()}`} />
-            <InfoTile label="Total Spent" value={`$${totalSpent.toLocaleString()}`} accent />
+            <InfoTile label="Budget" value={formatCurrencyINR(project.budget)} />
+            <InfoTile label="Total Spent" value={formatCurrencyINR(totalSpent)} accent />
             <InfoTile label="Tasks" value={projectTasks.length} />
             <InfoTile label="Workers" value={projectWorkers.length} />
           </div>
@@ -236,8 +237,8 @@ export default function ProjectDetails() {
           <Card title="Budget Utilization">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Spent: ${totalSpent.toLocaleString()}</span>
-                <span className="text-slate-400">Budget: ${Number(project.budget).toLocaleString()}</span>
+                <span className="text-slate-400">Spent: {formatCurrencyINR(totalSpent)}</span>
+                <span className="text-slate-400">Budget: {formatCurrencyINR(project.budget)}</span>
               </div>
               <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
                 <div
