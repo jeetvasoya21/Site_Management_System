@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-
-dotenv.config();
+import env from "../config/env.js";
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    const conn = await mongoose.connect(env.mongoUri, {
+      autoIndex: env.nodeEnv !== "production",
+    });
     console.log(`✅ MongoDB connected: ${conn.connection.host}`);
     return conn;
   } catch (error) {

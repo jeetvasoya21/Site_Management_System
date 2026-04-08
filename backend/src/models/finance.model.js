@@ -39,6 +39,7 @@ const financeSchema = new mongoose.Schema(
     attendanceId: { type: mongoose.Schema.Types.ObjectId, ref: "Attendance", default: null },
     itemId: { type: mongoose.Schema.Types.ObjectId, ref: "Item", default: null },
     procurementId: { type: mongoose.Schema.Types.ObjectId, ref: "PurchaseOrder", default: null },
+    materialIssueId: { type: mongoose.Schema.Types.ObjectId, ref: "MaterialIssue", default: null },
     taskId: { type: mongoose.Schema.Types.ObjectId, ref: "Task", default: null },
     vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor", default: null },
     notes: {
@@ -52,6 +53,9 @@ const financeSchema = new mongoose.Schema(
 financeSchema.index({ projectId: 1 });
 financeSchema.index({ costCategory: 1 });
 financeSchema.index({ date: -1 });
+financeSchema.index({ attendanceId: 1 }, { unique: true, sparse: true });
+financeSchema.index({ procurementId: 1 }, { unique: true, sparse: true });
+financeSchema.index({ materialIssueId: 1 }, { unique: true, sparse: true });
 
 const Finance = mongoose.model("Finance", financeSchema);
 export default Finance;

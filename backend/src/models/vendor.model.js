@@ -33,5 +33,8 @@ const vendorSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+vendorSchema.index({ vendorName: 1 });
+vendorSchema.index({ email: 1 }, { unique: true, sparse: true });
+
 const Vendor = mongoose.model("Vendor", vendorSchema);
 export default Vendor;

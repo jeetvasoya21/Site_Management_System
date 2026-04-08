@@ -1,6 +1,34 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
+const refreshSessionSchema = new mongoose.Schema(
+  {
+    tokenHash: {
+      type: String,
+      required: true,
+    },
+    userAgent: {
+      type: String,
+      default: "unknown",
+      trim: true,
+    },
+    ipAddress: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    expiresAt: {
+      type: Date,
+      required: true,
+    },
+    lastUsedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { _id: true, timestamps: true }
+);
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -31,7 +59,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["Admin", "Project_Manager", "Site_Engineer", "Worker"],
+      enum: ["Admin", "Project_Manager", "Site_Engineer", "Storekeeper", "Worker"],
       default: "Site_Engineer",
     },
     isActive: {
@@ -67,6 +95,10 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    refreshSessions: {
+      type: [refreshSessionSchema],
+      default: [],
+    },
   },
   { timestamps: true }
 );
@@ -84,6 +116,12 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
+userSchema.methods.pruneExpiredSessions = function () {
+  this.refreshSessions = this.refreshSessions.filter(
+    (session) => session.expiresAt > new Date()
+  );
+};
+
 // Remove password from JSON output
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
@@ -92,6 +130,7 @@ userSchema.methods.toJSON = function () {
 };
 
 userSchema.index({ role: 1 });
+userSchema.index({ email: 1 }, { unique: true });
 
 const User = mongoose.model("User", userSchema);
 export default User;

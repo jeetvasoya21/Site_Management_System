@@ -26,6 +26,7 @@ const workerAssignmentSchema = new mongoose.Schema(
 
 workerAssignmentSchema.index({ workerId: 1 });
 workerAssignmentSchema.index({ taskId: 1 });
+workerAssignmentSchema.index({ workerId: 1, taskId: 1 }, { unique: true });
 
 const WorkerAssignment = mongoose.model("WorkerAssignment", workerAssignmentSchema);
 export default WorkerAssignment;

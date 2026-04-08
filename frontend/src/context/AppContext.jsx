@@ -19,12 +19,13 @@ import {
   leaveService,
   notificationService,
 } from '../services/apiServices';
+import { useAuthStore } from '../store/authStore';
 
 export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const currentUser = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -54,8 +55,7 @@ export const AppProvider = ({ children }) => {
 
   // Fetch all data from API
   const fetchAllData = useCallback(async () => {
-    const token = localStorage.getItem('siteos_token');
-    if (!token) return;
+    if (!isAuthenticated) return;
 
     setDataLoading(true);
     setDataError(null);
@@ -117,42 +117,32 @@ export const AppProvider = ({ children }) => {
     } finally {
       setDataLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   // Auto-fetch data when token exists
   useEffect(() => {
-    const token = localStorage.getItem('siteos_token');
-    if (token) {
+    if (isAuthenticated) {
       fetchAllData();
     }
-  }, [fetchAllData]);
+  }, [fetchAllData, isAuthenticated]);
 
-  // Listen for auth changes
   useEffect(() => {
-    const handleStorageChange = () => {
-      const token = localStorage.getItem('siteos_token');
-      if (token) {
-        fetchAllData();
-      } else {
-        // Clear all data on logout
-        setProjects([]);
-        setTasks([]);
-        setWorkers([]);
-        setInventory([]);
-        setFinanceRecords([]);
-        setVendors([]);
-        setPurchaseOrders([]);
-        setMaterialIssues([]);
-        setWorkerAssignments([]);
-        setAttendanceRecords([]);
-        setProjectMembers([]);
-        setNotifications([]);
-        setLeaveApplications([]);
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [fetchAllData]);
+    if (isAuthenticated) return;
+
+    setProjects([]);
+    setTasks([]);
+    setWorkers([]);
+    setInventory([]);
+    setFinanceRecords([]);
+    setVendors([]);
+    setPurchaseOrders([]);
+    setMaterialIssues([]);
+    setWorkerAssignments([]);
+    setAttendanceRecords([]);
+    setProjectMembers([]);
+    setNotifications([]);
+    setLeaveApplications([]);
+  }, [isAuthenticated]);
 
   const pushNotification = useCallback((notification) => {
     setNotifications((prev) => [
@@ -163,17 +153,15 @@ export const AppProvider = ({ children }) => {
 
   // Authentication actions (kept for AppContext backward compatibility)
   const login = useCallback((userId) => {
-    setCurrentUser({ id: userId });
-    setIsAuthenticated(true);
+    return userId;
   }, []);
 
   const logout = useCallback(() => {
-    setCurrentUser(null);
-    setIsAuthenticated(false);
+    return true;
   }, []);
 
   const switchRole = useCallback((newRole) => {
-    if (currentUser) setCurrentUser({ ...currentUser, role: newRole });
+    return newRole;
   }, [currentUser]);
 
   // ─── Project Actions ────────────────────────────────

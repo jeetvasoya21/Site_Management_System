@@ -27,6 +27,11 @@ const purchaseOrderSchema = new mongoose.Schema(
       required: [true, "Unit price is required"],
       min: [0, "Unit price cannot be negative"],
     },
+    totalCost: {
+      type: Number,
+      default: 0,
+      min: [0, "Total cost cannot be negative"],
+    },
     deliveryStatus: {
       type: String,
       enum: ["ordered", "shipped", "delivered", "cancelled"],
@@ -51,13 +56,14 @@ const purchaseOrderSchema = new mongoose.Schema(
   }
 );
 
-// Virtual for total cost
-purchaseOrderSchema.virtual("totalCost").get(function () {
-  return this.quantity * this.unitPrice;
+purchaseOrderSchema.pre("validate", function (next) {
+  this.totalCost = Number(this.quantity || 0) * Number(this.unitPrice || 0);
+  next();
 });
 
 purchaseOrderSchema.index({ projectId: 1 });
 purchaseOrderSchema.index({ deliveryStatus: 1 });
+purchaseOrderSchema.index({ vendorId: 1, projectId: 1 });
 
 const PurchaseOrder = mongoose.model("PurchaseOrder", purchaseOrderSchema);
 export default PurchaseOrder;

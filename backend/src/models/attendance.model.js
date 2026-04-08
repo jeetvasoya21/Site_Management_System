@@ -27,6 +27,16 @@ const attendanceSchema = new mongoose.Schema(
       min: 0,
       max: 24,
     },
+    usedRateType: {
+      type: String,
+      enum: ["Daily", "Hourly"],
+      default: "Daily",
+    },
+    usedRate: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     laborCost: {
       type: Number,
       default: 0,
@@ -41,7 +51,7 @@ const attendanceSchema = new mongoose.Schema(
 );
 
 // Unique constraint: one attendance record per worker per day
-attendanceSchema.index({ workerId: 1, date: 1 }, { unique: true });
+attendanceSchema.index({ projectId: 1, workerId: 1, date: 1 }, { unique: true });
 attendanceSchema.index({ projectId: 1 });
 
 const Attendance = mongoose.model("Attendance", attendanceSchema);

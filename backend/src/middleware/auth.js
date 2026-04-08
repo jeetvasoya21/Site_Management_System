@@ -1,54 +1,37 @@
-import jwt from "jsonwebtoken";
+import { AppError } from "./errorHandler.js";
 import User from "../models/user.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { getAccessTokenFromRequest, verifyAccessToken } from "../services/token.service.js";
 
-/**
- * Protect routes — verify JWT token and attach user to request
- */
-export const protect = async (req, res, next) => {
-  try {
-    let token;
+export const protect = asyncHandler(async (req, res, next) => {
+  const token = getAccessTokenFromRequest(req);
 
-    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-      token = req.headers.authorization.split(" ")[1];
-    }
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Not authorized, no token provided",
-      });
-    }
-
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id).select("-password");
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: "User no longer exists",
-        });
-      }
-
-      if (!user.isActive) {
-        return res.status(401).json({
-          success: false,
-          message: "Account is deactivated",
-        });
-      }
-
-      req.user = user;
-      next();
-    } catch (err) {
-      return res.status(401).json({
-        success: false,
-        message: "Not authorized, token invalid or expired",
-      });
-    }
-  } catch (error) {
-    next(error);
+  if (!token) {
+    throw new AppError("Not authorized, access token missing", 401);
   }
-};
+
+  const decoded = verifyAccessToken(token);
+  if (decoded.type !== "access") {
+    throw new AppError("Invalid token type", 401);
+  }
+
+  const user = await User.findById(decoded.sub).select("-password");
+
+  if (!user) {
+    throw new AppError("User no longer exists", 401);
+  }
+
+  if (!user.isActive) {
+    throw new AppError("Account is deactivated", 401);
+  }
+
+  if (user.lastPasswordChange && decoded.iat * 1000 < user.lastPasswordChange.getTime()) {
+    throw new AppError("Session expired. Please log in again.", 401);
+  }
+
+  req.user = user;
+  next();
+});
 
 /**
  * Authorize specific roles
@@ -56,28 +39,15 @@ export const protect = async (req, res, next) => {
 export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: "Not authorized",
-      });
+      return next(new AppError("Not authorized", 401));
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: `Role '${req.user.role}' is not authorized to access this resource`,
-      });
+      return next(
+        new AppError(`Role '${req.user.role}' is not authorized to access this resource`, 403)
+      );
     }
 
     next();
   };
-};
-
-/**
- * Generate JWT token
- */
-export const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-  });
 };
