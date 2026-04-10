@@ -1,16 +1,85 @@
-# React + Vite
+# Construction Site Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Full-stack construction management application with:
+- `frontend`: React + Vite + Tailwind
+- `backend`: Node.js + Express + PostgreSQL
 
-Currently, two official plugins are available:
+## Repository Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+construction-site-management/
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   ├── server.js
+│   └── package.json
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   ├── vite.config.js
+│   └── package.json
+├── .gitignore
+├── package.json
+└── README.md
+```
 
-## React Compiler
+## Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 18+
+- npm 9+
+- PostgreSQL 14+
 
-## Expanding the ESLint configuration
+## Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Install dependencies for both apps:
+
+```bash
+npm run install:all
+```
+
+2. Configure environment variables:
+
+- Copy `backend/.env.example` to `backend/.env`
+- Copy `frontend/.env.example` to `frontend/.env` (optional)
+
+3. Run development servers:
+
+```bash
+npm run dev
+```
+
+Default ports:
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:5000`
+
+## Root Scripts
+
+- `npm run dev` - Run frontend and backend together
+- `npm run dev:frontend` - Run only frontend
+- `npm run dev:backend` - Run only backend
+- `npm run start:frontend` - Start frontend
+- `npm run start:backend` - Start backend
+- `npm run install:all` - Install backend + frontend dependencies
+
+## Database
+
+Backend includes SQL helpers and seed scripts:
+- `backend/siteos_enterprise_schema.sql`
+- `backend/migrate_schema.sql`
+- `backend/reset_db.sql`
+- `backend/seed_data.js`
+
+Use them according to your local PostgreSQL setup.
+
+## GitHub Publishing Checklist
+
+- `node_modules` removed
+- build outputs (`dist`, `coverage`) removed
+- `.env` files not committed
+- only source, configs, and docs committed
+
+This repository is now structured for direct GitHub publishing from this folder.
